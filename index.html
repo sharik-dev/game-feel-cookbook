@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Game Feel Cookbook — 20 tricks that make any game feel amazing</title>
+<meta name="description" content="20 game feel techniques with real starting values and Godot 4 GDScript: punchy hits, juicy jumps, satisfying coins, explosive dashes. Printable checklist.">
+<meta property="og:title" content="The Game Feel Cookbook">
+<meta property="og:description" content="20 tiny tricks that make any game feel amazing — values + Godot 4 code.">
+<meta property="og:image" content="media/punchy-5.jpg">
+<link rel="icon" href="assets/avatar.jpg">
+<style>
+@font-face{font-family:Anton;src:url(assets/Anton-Regular.ttf) format("truetype");font-display:swap}
+@font-face{font-family:JBM;src:url(assets/JetBrainsMono-VF.ttf) format("truetype");font-weight:100 900;font-display:swap}
+:root{--ink:#0B0A0D;--paper:#F3EEE6;--orange:#EE6C34;--orange2:#F59A6B;--line:#0B0A0D22}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 JBM,ui-monospace,monospace}
+a{color:inherit}
+.cur{width:1em;height:1em;fill:var(--ink);stroke:var(--paper);stroke-width:1.6;stroke-linejoin:round;vertical-align:-.1em}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+/* hero */
+.hero{background:var(--ink);color:var(--paper);position:relative;overflow:hidden;padding:56px 0 64px}
+.hero::before{content:"";position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24'%3E%3Cpath d='M3 2l7.5 19 2.6-7.6L21 10.8z' fill='%23F3EEE6' transform='scale(.45) translate(4 4)'/%3E%3C/svg%3E")}
+.brand{display:flex;align-items:center;gap:12px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;position:relative}
+.brand img{width:40px;height:40px;border-radius:50%}
+.hero h1{font:400 clamp(56px,10vw,128px)/.92 Anton,Impact,sans-serif;margin:40px 0 12px;text-transform:uppercase;position:relative}
+.hero h1 span{color:var(--orange)}
+.hero p{max-width:640px;font-size:18px;color:#F3EEE6cc;position:relative}
+.hero .cur{position:absolute;right:8%;bottom:18%;width:120px;height:120px;fill:var(--orange);stroke:var(--ink);stroke-width:1.2;transform:rotate(-8deg)}
+nav{position:sticky;top:0;z-index:5;background:var(--orange);border-bottom:2px solid var(--ink)}
+nav .wrap{display:flex;gap:4px;overflow-x:auto}
+nav a{font:400 20px Anton,sans-serif;text-decoration:none;padding:10px 14px;white-space:nowrap}
+nav a b{font:700 11px JBM,monospace;margin-right:6px;opacity:.6}
+nav a:hover{background:var(--ink);color:var(--paper)}
+/* chapters */
+.chapter{padding:72px 0 24px;border-bottom:2px solid var(--ink)}
+.chapter:nth-child(even){background:#EDE6DB}
+.ch-head{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:start;margin-bottom:40px}
+.ch-num{font:400 140px/.8 Anton,sans-serif;color:var(--orange);-webkit-text-stroke:2px var(--ink)}
+.kicker{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.kicker span{background:var(--ink);color:var(--orange);padding:1px 6px}
+h2{font:400 clamp(40px,6vw,72px)/1 Anton,sans-serif;text-transform:uppercase;margin:6px 0 12px}
+.lede{max-width:680px;margin:0 0 18px}
+.btn{display:inline-block;background:var(--ink);color:var(--paper);text-decoration:none;padding:10px 18px;font-weight:700;border:2px solid var(--ink);box-shadow:4px 4px 0 var(--orange)}
+.btn:hover{background:var(--orange);color:var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.step{display:grid;grid-template-columns:220px 1fr;gap:32px;padding:28px 0;border-top:1px dashed var(--line)}
+figure{margin:0}
+.step>*,.ch-head>*{min-width:0}
+.values li{overflow-wrap:anywhere}
+figure video,figure img{width:220px;aspect-ratio:9/16;object-fit:cover;border:2px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:6px 6px 0 var(--ink)}
+.step-n{margin:0;font-size:12px;font-weight:800;color:var(--orange);letter-spacing:.12em}
+h3{font:400 40px/1.05 Anton,sans-serif;text-transform:uppercase;margin:2px 0 10px}
+.what{font-size:18px;font-weight:600;margin:0 0 10px}
+.why{margin:0 0 14px}
+.why b{color:var(--orange)}
+.values{list-style:none;padding:0;margin:0 0 16px;display:flex;flex-wrap:wrap;gap:8px}
+.values li{background:var(--paper);border:2px solid var(--ink);padding:4px 10px;font-size:13px;font-weight:600}
+details{border:2px solid var(--ink);background:var(--ink);color:var(--paper)}
+summary{cursor:pointer;padding:8px 12px;font-weight:700;font-size:13px;color:var(--orange)}
+pre{margin:0;padding:14px 16px;overflow-x:auto;font-size:13px;line-height:1.5;tab-size:4;border-top:1px solid #F3EEE633}
+/* checklist */
+#checklist{padding:72px 0;background:var(--ink);color:var(--paper)}
+#checklist h2 span{color:var(--orange)}
+.cks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:24px}
+.ck h3{color:var(--orange);margin:0 0 8px}
+.ck ul{list-style:none;padding:0;margin:0}
+.ck li{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #F3EEE622;font-size:14px}
+.box{flex:none;width:16px;height:16px;border:2px solid var(--orange);margin-top:3px}
+.print{margin-top:28px;background:var(--orange);color:var(--ink);border:2px solid var(--paper);font:700 14px JBM,monospace;padding:10px 18px;cursor:pointer}
+footer{padding:40px 0;font-size:13px}
+footer a{font-weight:700}
+@media (max-width:700px){.ch-head{grid-template-columns:1fr}.ch-num{font-size:90px}.step{grid-template-columns:1fr}.hero .cur{display:none}}
+@media print{
+  nav,.hero .cur,.hero p,.chapter,.print,footer{display:none!important}
+  body,.hero,#checklist{background:#fff;color:#000}
+  .hero{padding:0}.hero h1{font-size:48px;margin:8px 0}
+  #checklist{padding:8px 0}
+  .ck{break-inside:avoid}.ck h3{color:#000}.ck li{border-color:#ccc}.box{border-color:#000}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <a class="brand" href="https://www.youtube.com/@make.money.with.ai.nowwwww" target="_blank" rel="noopener"><img src="assets/avatar.jpg" alt="">Make Money With AI · YouTube</a>
+    <h1>The Game Feel<br><span>Cookbook</span></h1>
+    <p>20 tiny tricks that make any game feel amazing — what each one does, why players feel it, the exact starting values, and short Godot 4 code you can paste today.</p>
+    <svg class="cur" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 2l7.5 19 2.6-7.6L21 10.8z"/></svg>
+  </div>
+</header>
+<nav><div class="wrap"><a href="#punchy"><b>01</b>PUNCH</a><a href="#jump"><b>02</b>JUMP</a><a href="#coin"><b>03</b>COIN</a><a href="#dash"><b>04</b>DASH</a><a href="#checklist"><b>✓</b>CHECKLIST</a></div></nav>
+<main>
+
+<section class="chapter" id="punchy"><div class="wrap">
+  <header class="ch-head">
+    <div class="ch-num">01</div>
+    <div>
+      <p class="kicker">Chapter 1 · comment <span>PUNCH</span> on the Short</p>
+      <h2>Make hits punchy</h2>
+      <p class="lede">A hit that only removes HP feels like nothing. These five layers all fire on the same impact frame — together they sell the weight of the blow.</p>
+      <a class="btn" href="https://www.youtube.com/shorts/i4-udz0FEZY" target="_blank" rel="noopener">▶ Watch the PUNCH Short</a>
+    </div>
+  </header>
+  
+  <article class="step" id="punchy-1">
+    <figure>
+      <video src="media/punchy-1.mp4" poster="media/punchy-1.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 1</p>
+      <h3>Flash</h3>
+      <p class="what">Turn the enemy pure white for a couple of frames on impact.</p>
+      <p class="why"><b>Why it works —</b> The eye catches the contrast instantly: the player knows the hit landed before reading any number.</p>
+      <ul class="values"><li>Duration: 50–80 ms (3–5 frames at 60 fps)</li><li>Flash = 100 % white, no fade-in</li><li>Make the material local to scene, or every enemy flashes at once</li></ul>
+      <details open><summary>GDScript · Godot 4</summary><pre><code># hit_flash.gdshader
+shader_type canvas_item;
+uniform float flash : hint_range(0.0, 1.0) = 0.0;
+void fragment() {
+	COLOR.rgb = mix(COLOR.rgb, vec3(1.0), flash);
+}
+
+# enemy.gd
+@onready var sprite: Sprite2D = $Sprite2D
+
+func flash() -&gt; void:
+	var mat := sprite.material as ShaderMaterial
+	mat.set_shader_parameter("flash", 1.0)
+	await get_tree().create_timer(0.06).timeout
+	mat.set_shader_parameter("flash", 0.0)</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="punchy-2">
+    <figure>
+      <video src="media/punchy-2.mp4" poster="media/punchy-2.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 2</p>
+      <h3>Sound</h3>
+      <p class="what">A short, sharp impact sound played on the exact frame of contact.</p>
+      <p class="why"><b>Why it works —</b> Audio sells weight more than visuals. A sound late by even 50 ms makes the hit feel mushy.</p>
+      <ul class="values"><li>Attack ≤ 5 ms, total length 80–200 ms</li><li>Random pitch 0.9–1.1 so 10 hits in a row never sound robotic</li><li>Layer a low thump + a high crack</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>@onready var hit_sfx: AudioStreamPlayer2D = $HitSfx
+
+func play_hit_sound() -&gt; void:
+	hit_sfx.pitch_scale = randf_range(0.9, 1.1)
+	hit_sfx.play()</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="punchy-3">
+    <figure>
+      <video src="media/punchy-3.mp4" poster="media/punchy-3.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 3</p>
+      <h3>Particles</h3>
+      <p class="what">A burst of sparks thrown in the direction of the hit.</p>
+      <p class="why"><b>Why it works —</b> Directional debris tells the brain where the force went — the hit gets a vector, not just a flash.</p>
+      <ul class="values"><li>8–16 particles, one_shot, explosiveness 1.0</li><li>Spread 20–30°, lifetime 0.2–0.35 s</li><li>Initial velocity 250–450 px/s with damping</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>const SPARKS := preload("res://fx/sparks.tscn") # CPUParticles2D, one_shot
+
+func spawn_sparks(pos: Vector2, hit_dir: Vector2) -&gt; void:
+	var p := SPARKS.instantiate() as CPUParticles2D
+	p.global_position = pos
+	p.rotation = hit_dir.angle() # particles emit along +X
+	get_tree().current_scene.add_child(p)
+	p.emitting = true
+	p.finished.connect(p.queue_free)</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="punchy-4">
+    <figure>
+      <video src="media/punchy-4.mp4" poster="media/punchy-4.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 4</p>
+      <h3>Knockback</h3>
+      <p class="what">Push the enemy away from the hit, and nudge the attacker back a little.</p>
+      <p class="why"><b>Why it works —</b> Movement is proof of force. The small recoil on the player makes it feel like two bodies actually collided.</p>
+      <ul class="values"><li>Enemy: 350–500 px/s, decays to 0 in ~0.15 s</li><li>Player recoil: 20–30 % of the enemy's knockback</li><li>Bigger weapon = bigger knockback, not more damage numbers</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code># enemy.gd (CharacterBody2D)
+var walk_velocity := Vector2.ZERO
+var knockback := Vector2.ZERO
+
+func take_hit(hit_dir: Vector2) -&gt; void:
+	knockback = hit_dir.normalized() * 450.0
+
+func _physics_process(delta: float) -&gt; void:
+	knockback = knockback.move_toward(Vector2.ZERO, 3000.0 * delta)
+	velocity = walk_velocity + knockback
+	move_and_slide()</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="punchy-5">
+    <figure>
+      <video src="media/punchy-5.mp4" poster="media/punchy-5.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 5</p>
+      <h3>Shake + freeze</h3>
+      <p class="what">Freeze the whole game for a few frames on impact, then a tiny screen shake.</p>
+      <p class="why"><b>Why it works —</b> The freeze (hit stop) gives the brain time to register the contact; the shake carries the energy outward.</p>
+      <ul class="values"><li>Hit stop: 40–90 ms (light hit 40, heavy 90)</li><li>Shake: 6–12 px, gone in 0.2–0.3 s</li><li>Trauma²-based shake so small hits stay subtle</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code># Hit stop: the timer ignores time_scale (4th arg)
+func hit_stop(duration := 0.06) -&gt; void:
+	Engine.time_scale = 0.0
+	await get_tree().create_timer(duration, true, false, true).timeout
+	Engine.time_scale = 1.0
+
+# camera_shake.gd (on the Camera2D)
+extends Camera2D
+var trauma := 0.0
+
+func add_trauma(amount: float) -&gt; void:
+	trauma = minf(trauma + amount, 1.0)
+
+func _process(delta: float) -&gt; void:
+	trauma = maxf(trauma - 3.0 * delta, 0.0)
+	var s := trauma * trauma
+	offset = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * 10.0 * s</code></pre></details>
+    </div>
+  </article>
+</div></section>
+<section class="chapter" id="jump"><div class="wrap">
+  <header class="ch-head">
+    <div class="ch-num">02</div>
+    <div>
+      <p class="kicker">Chapter 2 · comment <span>JUMP</span> on the Short</p>
+      <h2>Make jumps feel good</h2>
+      <p class="lede">Most "floaty" jumps are not a physics problem, they are a forgiveness problem. Four of these five tricks are invisible — players only notice when they are missing.</p>
+      <a class="btn" href="https://www.youtube.com/shorts/WNxWsPB64Gc" target="_blank" rel="noopener">▶ Watch the JUMP Short</a>
+    </div>
+  </header>
+  
+  <article class="step" id="jump-1">
+    <figure>
+      <video src="media/jump-1.mp4" poster="media/jump-1.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 1</p>
+      <h3>Coyote time</h3>
+      <p class="what">Let the player still jump for a few frames after walking off a ledge.</p>
+      <p class="why"><b>Why it works —</b> Players press jump when they <em>see</em> the edge, a little late. Without it, the game eats inputs and feels unfair.</p>
+      <ul class="values"><li>0.08–0.12 s (5–7 frames at 60 fps)</li><li>Only after walking off, never after a jump</li><li>Reset to 0 the moment you jump</li></ul>
+      <details open><summary>GDScript · Godot 4</summary><pre><code>const COYOTE_TIME := 0.10
+var coyote_timer := 0.0
+
+func _physics_process(delta: float) -&gt; void:
+	if is_on_floor():
+		coyote_timer = COYOTE_TIME
+	else:
+		coyote_timer -= delta
+	# can_jump: coyote_timer &gt; 0.0  (set it to 0.0 when jumping)</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="jump-2">
+    <figure>
+      <video src="media/jump-2.mp4" poster="media/jump-2.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 2</p>
+      <h3>Jump buffer</h3>
+      <p class="what">Remember a jump press made just before landing, and jump on the landing frame.</p>
+      <p class="why"><b>Why it works —</b> The player's timing was right in their head. Honoring it makes controls feel responsive instead of picky.</p>
+      <ul class="values"><li>Buffer window: 0.10–0.15 s</li><li>Works with coyote time: jump if buffer &gt; 0 and coyote &gt; 0</li><li>Clear both timers once the jump fires</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>const JUMP_BUFFER := 0.12
+const JUMP_VELOCITY := -420.0
+var buffer_timer := 0.0
+
+func handle_jump(delta: float) -&gt; void:
+	if Input.is_action_just_pressed("jump"):
+		buffer_timer = JUMP_BUFFER
+	else:
+		buffer_timer -= delta
+	if buffer_timer &gt; 0.0 and coyote_timer &gt; 0.0:
+		velocity.y = JUMP_VELOCITY
+		buffer_timer = 0.0
+		coyote_timer = 0.0</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="jump-3">
+    <figure>
+      <video src="media/jump-3.mp4" poster="media/jump-3.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 3</p>
+      <h3>Hold to jump higher</h3>
+      <p class="what">Tap for a small hop, hold for a full jump.</p>
+      <p class="why"><b>Why it works —</b> The player gets analog control from a digital button — precision without extra inputs.</p>
+      <ul class="values"><li>Cut upward velocity by 50 % on release</li><li>Only cut while still going up (velocity.y &lt; 0)</li><li>Min hop ≈ 35–45 % of max height</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>func _unhandled_input(event: InputEvent) -&gt; void:
+	if event.is_action_released("jump") and velocity.y &lt; 0.0:
+		velocity.y *= 0.5</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="jump-4">
+    <figure>
+      <video src="media/jump-4.mp4" poster="media/jump-4.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 4</p>
+      <h3>Fall faster</h3>
+      <p class="what">Use stronger gravity on the way down than on the way up.</p>
+      <p class="why"><b>Why it works —</b> A symmetric parabola reads as floaty. A fast fall feels snappy and gives the player control back sooner.</p>
+      <ul class="values"><li>Fall gravity ×1.8–2.5 (×2 is a safe start)</li><li>Cap fall speed: 800–1000 px/s</li><li>Rise gravity ~1200 px/s² for a 420 px/s jump</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>const GRAVITY := 1200.0
+const FALL_MULT := 2.0
+const MAX_FALL := 900.0
+
+func apply_gravity(delta: float) -&gt; void:
+	var g: float = GRAVITY * (FALL_MULT if velocity.y &gt; 0.0 else 1.0)
+	velocity.y = minf(velocity.y + g * delta, MAX_FALL)</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="jump-5">
+    <figure>
+      <video src="media/jump-5.mp4" poster="media/jump-5.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 5</p>
+      <h3>Squash + stretch</h3>
+      <p class="what">Stretch the sprite on takeoff, squash it on landing, puff out some dust.</p>
+      <p class="why"><b>Why it works —</b> It makes a rigid sprite look like it has mass and muscles — the jump has a wind-up and an impact.</p>
+      <ul class="values"><li>Takeoff: scale (0.8, 1.2)</li><li>Landing: scale (1.25, 0.8)</li><li>Spring back to (1, 1) in 0.10–0.15 s, TRANS_BACK ease out</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>@onready var visual: Node2D = $Visual # scale the visual, never the body
+@onready var dust: CPUParticles2D = $Dust
+var was_on_floor := true
+
+func squash(s: Vector2) -&gt; void:
+	visual.scale = s
+	create_tween().tween_property(visual, "scale", Vector2.ONE, 0.12) \
+		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+# after move_and_slide():
+func check_landing() -&gt; void:
+	if is_on_floor() and not was_on_floor:
+		squash(Vector2(1.25, 0.8))
+		dust.restart()
+	was_on_floor = is_on_floor()
+# on jump: squash(Vector2(0.8, 1.2))</code></pre></details>
+    </div>
+  </article>
+</div></section>
+<section class="chapter" id="coin"><div class="wrap">
+  <header class="ch-head">
+    <div class="ch-num">03</div>
+    <div>
+      <p class="kicker">Chapter 3 · comment <span>COIN</span> on the Short</p>
+      <h2>Make coin pickups feel good</h2>
+      <p class="lede">Pickups are the reward loop of your game. Make every single coin a tiny celebration and players will chase them without being told to.</p>
+      <a class="btn" href="https://www.youtube.com/@make.money.with.ai.nowwwww/shorts" target="_blank" rel="noopener">▶ Watch the COIN Short</a>
+    </div>
+  </header>
+  
+  <article class="step" id="coin-1">
+    <figure>
+      <video src="media/coin-1.mp4" poster="media/coin-1.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 1</p>
+      <h3>Spin + bob</h3>
+      <p class="what">Every coin turns and floats so it begs to be grabbed.</p>
+      <p class="why"><b>Why it works —</b> Motion catches peripheral vision: idle coins become a trail of breadcrumbs that guides the player.</p>
+      <ul class="values"><li>Bob: 4–6 px, period ~1.2 s</li><li>Spin: ~1 turn per second</li><li>Random phase per coin, or they all move in lockstep</li></ul>
+      <details open><summary>GDScript · Godot 4</summary><pre><code>extends Area2D
+@onready var sprite: Sprite2D = $Sprite2D
+var t := randf() * TAU # random phase
+var base_y := 0.0
+
+func _ready() -&gt; void:
+	base_y = sprite.position.y
+
+func _process(delta: float) -&gt; void:
+	t += delta
+	sprite.position.y = base_y + sin(t * 5.2) * 5.0
+	sprite.scale.x = cos(t * TAU) # fake 3D spin</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="coin-2">
+    <figure>
+      <video src="media/coin-2.mp4" poster="media/coin-2.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 2</p>
+      <h3>Magnet</h3>
+      <p class="what">Pull coins toward the player once they get close.</p>
+      <p class="why"><b>Why it works —</b> Near-misses still pay out. The player feels lucky and powerful instead of frustrated.</p>
+      <ul class="values"><li>Radius: 60–100 px (upgradeable = free progression)</li><li>Accelerate, don't teleport: 1800 px/s², max 600 px/s</li><li>Once pulled, never let go</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>var player: Node2D
+var vel := Vector2.ZERO
+var pulled := false
+
+func _physics_process(delta: float) -&gt; void:
+	if not pulled and global_position.distance_to(player.global_position) &lt; 80.0:
+		pulled = true
+	if pulled:
+		var dir := global_position.direction_to(player.global_position)
+		vel = vel.move_toward(dir * 600.0, 1800.0 * delta)
+		global_position += vel * delta</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="coin-3">
+    <figure>
+      <video src="media/coin-3.mp4" poster="media/coin-3.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 3</p>
+      <h3>Pop + sparkle</h3>
+      <p class="what">Squash the coin up, then burst it into tiny stars.</p>
+      <p class="why"><b>Why it works —</b> A coin that just disappears feels deleted. A pop gives the pickup an ending the eye can enjoy.</p>
+      <ul class="values"><li>Scale to 1.4 in 60 ms, then to 0 in 100 ms</li><li>6–12 star particles, lifetime 0.3 s</li><li>Disable the collision on the first frame</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>func collect() -&gt; void:
+	$CollisionShape2D.set_deferred("disabled", true)
+	$Sparkles.emitting = true # CPUParticles2D, one_shot
+	var tw := create_tween()
+	tw.tween_property(sprite, "scale", Vector2(1.4, 1.4), 0.06)
+	tw.tween_property(sprite, "scale", Vector2.ZERO, 0.10)
+	await get_tree().create_timer(0.4).timeout # let the sparkles finish
+	queue_free()</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="coin-4">
+    <figure>
+      <video src="media/coin-4.mp4" poster="media/coin-4.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 4</p>
+      <h3>Rising pitch</h3>
+      <p class="what">Each coin in a quick row plays a slightly higher note.</p>
+      <p class="why"><b>Why it works —</b> The rising scale turns a line of coins into a little melody — the brain wants to finish it.</p>
+      <ul class="values"><li>+1 semitone per coin: pitch = 2^(n/12)</li><li>Combo resets after 0.6–0.8 s without a coin</li><li>Cap at +12 (one octave), then loop</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code># On the player (or an autoload): one shared counter
+@onready var coin_sfx: AudioStreamPlayer = $CoinSfx
+var combo := 0
+var last_pickup := -10.0
+
+func play_coin_sound() -&gt; void:
+	var now := Time.get_ticks_msec() / 1000.0
+	combo = combo + 1 if now - last_pickup &lt; 0.7 else 0
+	last_pickup = now
+	coin_sfx.pitch_scale = pow(2.0, float(combo % 13) / 12.0)
+	coin_sfx.play()</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="coin-5">
+    <figure>
+      <video src="media/coin-5.mp4" poster="media/coin-5.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 5</p>
+      <h3>Fly to the counter</h3>
+      <p class="what">Send each coin icon to the score, and make the number bounce when it lands.</p>
+      <p class="why"><b>Why it works —</b> It connects the action to the progress. The player <em>sees</em> their wealth grow instead of reading it.</p>
+      <ul class="values"><li>Flight: 0.35–0.5 s, ease-in (accelerates into the counter)</li><li>Counter punch: scale 1.3 → 1.0 in 0.15 s</li><li>Add the value when the coin arrives, not when picked</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code># hud.gd (CanvasLayer)
+@onready var counter: Label = $Counter
+const ICON := preload("res://ui/coin_icon.tscn")
+var coins := 0
+
+func fly_coin(screen_pos: Vector2) -&gt; void:
+	var icon := ICON.instantiate() as Control
+	add_child(icon)
+	icon.position = screen_pos
+	var tw := create_tween()
+	tw.tween_property(icon, "position", counter.position, 0.4) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tw.tween_callback(func():
+		icon.queue_free()
+		coins += 1
+		counter.text = str(coins)
+		counter.pivot_offset = counter.size / 2.0
+		counter.scale = Vector2(1.3, 1.3)
+		create_tween().tween_property(counter, "scale", Vector2.ONE, 0.15))
+# screen_pos = coin.get_global_transform_with_canvas().origin</code></pre></details>
+    </div>
+  </article>
+</div></section>
+<section class="chapter" id="dash"><div class="wrap">
+  <header class="ch-head">
+    <div class="ch-num">04</div>
+    <div>
+      <p class="kicker">Chapter 4 · comment <span>DASH</span> on the Short</p>
+      <h2>Make dashes feel good</h2>
+      <p class="lede">A dash is a burst of speed that lasts a fraction of a second. Everything here exists to make that fraction feel explosive — and readable.</p>
+      <a class="btn" href="https://www.youtube.com/@make.money.with.ai.nowwwww/shorts" target="_blank" rel="noopener">▶ Watch the DASH Short</a>
+    </div>
+  </header>
+  
+  <article class="step" id="dash-1">
+    <figure>
+      <video src="media/dash-1.mp4" poster="media/dash-1.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 1</p>
+      <h3>Anticipation</h3>
+      <p class="what">Squash the player for a few frames, then stretch into the dash.</p>
+      <p class="why"><b>Why it works —</b> The wind-up loads the spring: the brain expects the release, so the burst feels stronger.</p>
+      <ul class="values"><li>Squash: 3–4 frames (≈ 50 ms) at (1.2, 0.8)</li><li>Stretch along the dash: (1.35, 0.75)</li><li>Keep it under 80 ms or the dash feels laggy</li></ul>
+      <details open><summary>GDScript · Godot 4</summary><pre><code>func start_dash(dir: Vector2) -&gt; void:
+	visual.scale = Vector2(1.2, 0.8)
+	await get_tree().create_timer(0.05).timeout
+	visual.rotation = dir.angle()
+	visual.scale = Vector2(1.35, 0.75)
+	create_tween().tween_property(visual, "scale", Vector2.ONE, 0.2)
+	dashing = true
+	dash_dir = dir
+	dash_time = DASH_DURATION</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="dash-2">
+    <figure>
+      <video src="media/dash-2.mp4" poster="media/dash-2.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 2</p>
+      <h3>Afterimages</h3>
+      <p class="what">Leave a trail of fading ghost copies behind the player.</p>
+      <p class="why"><b>Why it works —</b> Ghosts draw the path you just took — speed becomes visible even in a still frame.</p>
+      <ul class="values"><li>One ghost every 25–35 ms during the dash</li><li>Start alpha 0.5–0.6, fade to 0 in 0.2 s</li><li>Tint ghosts with an accent color</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>func spawn_ghost() -&gt; void:
+	var g := Sprite2D.new()
+	g.texture = sprite.texture
+	get_tree().current_scene.add_child(g)
+	g.global_transform = sprite.global_transform
+	g.modulate = Color(0.93, 0.42, 0.2, 0.55) # accent tint
+	var tw := g.create_tween()
+	tw.tween_property(g, "modulate:a", 0.0, 0.2)
+	tw.tween_callback(g.queue_free)
+# while dashing: call it from a Timer with wait_time = 0.03</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="dash-3">
+    <figure>
+      <video src="media/dash-3.mp4" poster="media/dash-3.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 3</p>
+      <h3>Speed lines + FOV kick</h3>
+      <p class="what">Add streaks and widen the camera for a split second.</p>
+      <p class="why"><b>Why it works —</b> Widening the field of view mimics the tunnel vision of real speed — the world rushes past.</p>
+      <ul class="values"><li>3D: FOV +12–18° (75 → 90), back in 0.25 s</li><li>2D: zoom ×0.92, back in 0.25 s</li><li>Streak particles opposite to the dash direction</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>@onready var cam: Camera3D = $Camera3D
+const BASE_FOV := 75.0
+
+func fov_kick() -&gt; void:
+	cam.fov = BASE_FOV + 15.0
+	create_tween().tween_property(cam, "fov", BASE_FOV, 0.25) \
+		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="dash-4">
+    <figure>
+      <video src="media/dash-4.mp4" poster="media/dash-4.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 4</p>
+      <h3>Hit stop</h3>
+      <p class="what">If the dash hits something, freeze on impact, then shake.</p>
+      <p class="why"><b>Why it works —</b> The freeze punctuates the end of the motion — the dash gets a full stop instead of a blur.</p>
+      <ul class="values"><li>40–70 ms freeze</li><li>Shake 8 px for 0.2 s</li><li>Same hit_stop() as the PUNCH chapter — reuse it</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>func _on_dash_hit(body: Node) -&gt; void:
+	if body.has_method("take_hit"):
+		body.take_hit(dash_dir)
+	await hit_stop(0.05) # see PUNCH › Shake + freeze
+	camera.add_trauma(0.5)</code></pre></details>
+    </div>
+  </article>
+  <article class="step" id="dash-5">
+    <figure>
+      <video src="media/dash-5.mp4" poster="media/dash-5.jpg" autoplay muted loop playsinline preload="none"></video>
+          </figure>
+    <div class="body">
+      <p class="step-n">STEP 5</p>
+      <h3>Dust + recovery</h3>
+      <p class="what">Puff out dust at the end and skid to a stop instead of halting instantly.</p>
+      <p class="why"><b>Why it works —</b> An instant stop feels like hitting a wall. A short skid shows momentum being absorbed.</p>
+      <ul class="values"><li>Dash: 0.12–0.18 s at 800–1000 px/s</li><li>Skid: decelerate to walk speed over ~0.12 s</li><li>Dust burst of 6–10 puffs at the feet</li></ul>
+      <details><summary>GDScript · Godot 4</summary><pre><code>const DASH_SPEED := 900.0
+const DASH_DURATION := 0.15
+const SKID_DECEL := 6000.0
+
+func _physics_process(delta: float) -&gt; void:
+	if dashing:
+		dash_time -= delta
+		velocity = dash_dir * DASH_SPEED
+		if dash_time &lt;= 0.0:
+			dashing = false
+			dust.restart()
+	else:
+		velocity.x = move_toward(velocity.x, input_x * WALK_SPEED, SKID_DECEL * delta)
+	move_and_slide()</code></pre></details>
+    </div>
+  </article>
+</div></section>
+<section id="checklist">
+  <div class="wrap">
+    <h2>The <span>checklist</span></h2>
+    <p>Print it, stick it next to your screen, tick every box before you ship.</p>
+    <div class="cks">
+  <div class="ck"><h3>PUNCH</h3><ul><li><span class="box"></span>White flash 50–80 ms on impact</li><li><span class="box"></span>Impact sound on the contact frame, pitch 0.9–1.1</li><li><span class="box"></span>Directional sparks (8–16, spread 25°)</li><li><span class="box"></span>Knockback 350–500 px/s + small player recoil</li><li><span class="box"></span>Hit stop 40–90 ms, then trauma-based shake</li></ul></div>
+  <div class="ck"><h3>JUMP</h3><ul><li><span class="box"></span>Coyote time 0.10 s</li><li><span class="box"></span>Jump buffer 0.12 s</li><li><span class="box"></span>Release = velocity.y × 0.5</li><li><span class="box"></span>Fall gravity ×2, max fall speed capped</li><li><span class="box"></span>Stretch on takeoff, squash on landing, dust</li></ul></div>
+  <div class="ck"><h3>COIN</h3><ul><li><span class="box"></span>Spin + bob with random phase</li><li><span class="box"></span>Magnet radius 60–100 px, accelerating pull</li><li><span class="box"></span>Pop to 1.4× then burst into sparkles</li><li><span class="box"></span>+1 semitone per coin in a row (2^(n/12))</li><li><span class="box"></span>Fly to the counter + counter bounce</li></ul></div>
+  <div class="ck"><h3>DASH</h3><ul><li><span class="box"></span>Anticipation squash ≤ 80 ms, stretch along the dash</li><li><span class="box"></span>Afterimages every 30 ms, fade in 0.2 s</li><li><span class="box"></span>FOV kick +15° (or zoom 0.92) and speed lines</li><li><span class="box"></span>Hit stop + shake on contact</li><li><span class="box"></span>Skid to a stop + dust instead of a hard stop</li></ul></div></div>
+    <button class="print" onclick="window.print()">Print the checklist</button>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">
+  Made by <a href="https://www.youtube.com/@make.money.with.ai.nowwwww" target="_blank" rel="noopener">Make Money With AI</a> — the game scenes in these clips were coded by Claude. Code snippets: MIT, use them in anything. No cookies, no tracking.
+</div></footer>
+</body>
+</html>
